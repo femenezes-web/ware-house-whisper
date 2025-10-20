@@ -105,6 +105,12 @@ export const useStock = () => {
     });
   };
 
+  const importFromExcel = (products: Array<{ code: string; description: string; quantity: number; address: string }>) => {
+    products.forEach(product => {
+      addProduct(product.code, product.description, product.quantity, product.address);
+    });
+  };
+
   const exportToCSV = () => {
     const headers = ['Código', 'Descrição', 'Quantidade', 'Endereço'];
     const rows = stock.map(item => [
@@ -137,6 +143,7 @@ export const useStock = () => {
     addProduct,
     removeProduct,
     transferProduct,
+    importFromExcel,
     exportToCSV
   };
 };
