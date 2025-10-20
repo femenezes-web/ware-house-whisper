@@ -21,7 +21,8 @@ export const StockTable = ({ stock, onExport }: StockTableProps) => {
     return stock.filter(item =>
       item.code.toLowerCase().includes(query) ||
       item.description.toLowerCase().includes(query) ||
-      item.address.toLowerCase().includes(query)
+      item.address.toLowerCase().includes(query) ||
+      item.lote.toLowerCase().includes(query)
     );
   }, [stock, search]);
 
@@ -47,7 +48,7 @@ export const StockTable = ({ stock, onExport }: StockTableProps) => {
             <div className="relative flex-1 sm:w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar por código, descrição ou endereço..."
+                placeholder="Buscar por código, descrição, endereço ou lote..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9"
@@ -70,24 +71,30 @@ export const StockTable = ({ stock, onExport }: StockTableProps) => {
                 <TableHead className="font-semibold">Descrição</TableHead>
                 <TableHead className="font-semibold text-right">Quantidade</TableHead>
                 <TableHead className="font-semibold">Endereço</TableHead>
+                <TableHead className="font-semibold">Lote</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredStock.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                     {search ? 'Nenhum produto encontrado' : 'Estoque vazio. Adicione produtos para começar.'}
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredStock.map((item, index) => (
-                  <TableRow key={`${item.code}-${item.address}-${index}`}>
+                  <TableRow key={`${item.code}-${item.address}-${item.lote}-${index}`}>
                     <TableCell className="font-medium">{item.code}</TableCell>
                     <TableCell>{item.description}</TableCell>
                     <TableCell className="text-right">{item.quantity}</TableCell>
                     <TableCell>
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
                         {item.address}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent/10 text-accent">
+                        {item.lote}
                       </span>
                     </TableCell>
                   </TableRow>

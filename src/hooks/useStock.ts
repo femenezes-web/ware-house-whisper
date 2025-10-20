@@ -5,6 +5,7 @@ export interface StockItem {
   description: string;
   quantity: number;
   address: string;
+  lote: string;
 }
 
 const STORAGE_KEY = 'wms_stock_data';
@@ -19,28 +20,28 @@ export const useStock = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stock));
   }, [stock]);
 
-  const addProduct = (code: string, description: string, quantity: number, address: string) => {
+  const addProduct = (code: string, description: string, quantity: number, address: string, lote: string) => {
     setStock(prev => {
-      const existing = prev.find(item => item.code === code && item.address === address);
+      const existing = prev.find(item => item.code === code && item.address === address && item.lote === lote);
       
       if (existing) {
         return prev.map(item =>
-          item.code === code && item.address === address
+          item.code === code && item.address === address && item.lote === lote
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       }
       
-      return [...prev, { code, description, quantity, address }];
+      return [...prev, { code, description, quantity, address, lote }];
     });
   };
 
-  const removeProduct = (code: string, address: string, quantity: number) => {
+  const removeProduct = (code: string, address: string, lote: string, quantity: number) => {
     setStock(prev => {
-      const existing = prev.find(item => item.code === code && item.address === address);
+      const existing = prev.find(item => item.code === code && item.address === address && item.lote === lote);
       
       if (!existing) {
-        throw new Error('Produto não encontrado neste endereço');
+        throw new Error('Produto não encontrado neste endereço e lote');
       }
       
       if (existing.quantity < quantity) {
@@ -48,23 +49,23 @@ export const useStock = () => {
       }
       
       if (existing.quantity === quantity) {
-        return prev.filter(item => !(item.code === code && item.address === address));
+        return prev.filter(item => !(item.code === code && item.address === address && item.lote === lote));
       }
       
       return prev.map(item =>
-        item.code === code && item.address === address
+        item.code === code && item.address === address && item.lote === lote
           ? { ...item, quantity: item.quantity - quantity }
           : item
       );
     });
   };
 
-  const transferProduct = (code: string, fromAddress: string, toAddress: string, quantity: number) => {
+  const transferProduct = (code: string, fromAddress: string, toAddress: string, lote: string, quantity: number) => {
     setStock(prev => {
-      const source = prev.find(item => item.code === code && item.address === fromAddress);
+      const source = prev.find(item => item.code === code && item.address === fromAddress && item.lote === lote);
       
       if (!source) {
-        throw new Error('Produto não encontrado no endereço de origem');
+        throw new Error('Produto não encontrado no endereço de origem e lote');
       }
       
       if (source.quantity < quantity) {
@@ -75,20 +76,20 @@ export const useStock = () => {
       
       // Remove from source
       if (source.quantity === quantity) {
-        newStock = newStock.filter(item => !(item.code === code && item.address === fromAddress));
+        newStock = newStock.filter(item => !(item.code === code && item.address === fromAddress && item.lote === lote));
       } else {
         newStock = newStock.map(item =>
-          item.code === code && item.address === fromAddress
+          item.code === code && item.address === fromAddress && item.lote === lote
             ? { ...item, quantity: item.quantity - quantity }
             : item
         );
       }
       
       // Add to destination
-      const destination = newStock.find(item => item.code === code && item.address === toAddress);
+      const destination = newStock.find(item => item.code === code && item.address === toAddress && item.lote === lote);
       if (destination) {
         newStock = newStock.map(item =>
-          item.code === code && item.address === toAddress
+          item.code === code && item.address === toAddress && item.lote === lote
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
@@ -97,7 +98,8 @@ export const useStock = () => {
           code,
           description: source.description,
           quantity,
-          address: toAddress
+          address: toAddress,
+          lote
         });
       }
       
@@ -105,19 +107,20 @@ export const useStock = () => {
     });
   };
 
-  const importFromExcel = (products: Array<{ code: string; description: string; quantity: number; address: string }>) => {
+  const importFromExcel = (products: Array<{ code: string; description: string; quantity: number; address: string; lote: string }>) => {
     products.forEach(product => {
-      addProduct(product.code, product.description, product.quantity, product.address);
+      addProduct(product.code, product.description, product.quantity, product.address, product.lote);
     });
   };
 
   const exportToCSV = () => {
-    const headers = ['Código', 'Descrição', 'Quantidade', 'Endereço'];
+    const headers = ['Código', 'Descrição', 'Quantidade', 'Endereço', 'Lote'];
     const rows = stock.map(item => [
       item.code,
       item.description,
       item.quantity.toString(),
-      item.address
+      item.address,
+      item.lote
     ]);
     
     const csv = [

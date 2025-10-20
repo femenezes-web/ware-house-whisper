@@ -7,21 +7,22 @@ import { PackageMinus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface ProductExitProps {
-  onRemove: (code: string, address: string, quantity: number) => void;
+  onRemove: (code: string, address: string, lote: string, quantity: number) => void;
 }
 
 export const ProductExit = ({ onRemove }: ProductExitProps) => {
   const [code, setCode] = useState('');
   const [address, setAddress] = useState('');
+  const [lote, setLote] = useState('');
   const [quantity, setQuantity] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!code.trim() || !address.trim()) {
+    if (!code.trim() || !address.trim() || !lote.trim()) {
       toast({
         title: 'Erro',
-        description: 'Preencha código e endereço',
+        description: 'Preencha código, endereço e lote',
         variant: 'destructive',
       });
       return;
@@ -38,15 +39,16 @@ export const ProductExit = ({ onRemove }: ProductExitProps) => {
     }
     
     try {
-      onRemove(code.trim().toUpperCase(), address.trim().toUpperCase(), qty);
+      onRemove(code.trim().toUpperCase(), address.trim().toUpperCase(), lote.trim().toUpperCase(), qty);
       
       toast({
         title: 'Sucesso!',
-        description: `${qty} unidade(s) removidas do endereço ${address.toUpperCase()}`,
+        description: `${qty} unidade(s) removidas do endereço ${address.toUpperCase()}, lote ${lote.toUpperCase()}`,
       });
       
       setCode('');
       setAddress('');
+      setLote('');
       setQuantity('');
     } catch (error) {
       toast({
@@ -68,7 +70,7 @@ export const ProductExit = ({ onRemove }: ProductExitProps) => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="exit-code">Código do Produto</Label>
               <Input
@@ -86,6 +88,16 @@ export const ProductExit = ({ onRemove }: ProductExitProps) => {
                 placeholder="Ex: A01"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="exit-lote">Lote</Label>
+              <Input
+                id="exit-lote"
+                placeholder="Ex: L001"
+                value={lote}
+                onChange={(e) => setLote(e.target.value)}
               />
             </div>
             

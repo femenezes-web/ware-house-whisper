@@ -6,7 +6,7 @@ import * as XLSX from 'xlsx';
 import { toast } from 'sonner';
 
 interface ExcelUploadProps {
-  onImport: (data: Array<{ code: string; description: string; quantity: number; address: string }>) => void;
+  onImport: (data: Array<{ code: string; description: string; quantity: number; address: string; lote: string }>) => void;
 }
 
 export const ExcelUpload = ({ onImport }: ExcelUploadProps) => {
@@ -30,16 +30,18 @@ export const ExcelUpload = ({ onImport }: ExcelUploadProps) => {
           const description = row['Descrição'] || row['Descricao'] || row['descricao'] || row['DESCRIÇÃO'];
           const quantity = row['Quantidade'] || row['quantidade'] || row['QUANTIDADE'];
           const address = row['Endereço'] || row['Endereco'] || row['endereco'] || row['ENDEREÇO'];
+          const lote = row['Lote'] || row['lote'] || row['LOTE'];
 
-          if (!code || !description || !quantity || !address) {
-            throw new Error('Planilha inválida: faltam colunas obrigatórias (Código, Descrição, Quantidade, Endereço)');
+          if (!code || !description || !quantity || !address || !lote) {
+            throw new Error('Planilha inválida: faltam colunas obrigatórias (Código, Descrição, Quantidade, Endereço, Lote)');
           }
 
           return {
             code: String(code),
             description: String(description),
             quantity: Number(quantity),
-            address: String(address)
+            address: String(address),
+            lote: String(lote)
           };
         });
 
@@ -65,7 +67,7 @@ export const ExcelUpload = ({ onImport }: ExcelUploadProps) => {
           Importar Planilha Excel
         </CardTitle>
         <CardDescription>
-          Envie uma planilha .xlsx ou .csv com as colunas: Código, Descrição, Quantidade, Endereço
+          Envie uma planilha .xlsx ou .csv com as colunas: Código, Descrição, Quantidade, Endereço, Lote
         </CardDescription>
       </CardHeader>
       <CardContent>

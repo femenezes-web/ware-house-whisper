@@ -7,19 +7,20 @@ import { ArrowRightLeft } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface ProductTransferProps {
-  onTransfer: (code: string, fromAddress: string, toAddress: string, quantity: number) => void;
+  onTransfer: (code: string, fromAddress: string, toAddress: string, lote: string, quantity: number) => void;
 }
 
 export const ProductTransfer = ({ onTransfer }: ProductTransferProps) => {
   const [code, setCode] = useState('');
   const [fromAddress, setFromAddress] = useState('');
   const [toAddress, setToAddress] = useState('');
+  const [lote, setLote] = useState('');
   const [quantity, setQuantity] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!code.trim() || !fromAddress.trim() || !toAddress.trim()) {
+    if (!code.trim() || !fromAddress.trim() || !toAddress.trim() || !lote.trim()) {
       toast({
         title: 'Erro',
         description: 'Preencha todos os campos',
@@ -52,17 +53,19 @@ export const ProductTransfer = ({ onTransfer }: ProductTransferProps) => {
         code.trim().toUpperCase(),
         fromAddress.trim().toUpperCase(),
         toAddress.trim().toUpperCase(),
+        lote.trim().toUpperCase(),
         qty
       );
       
       toast({
         title: 'Sucesso!',
-        description: `${qty} unidade(s) transferidas de ${fromAddress.toUpperCase()} para ${toAddress.toUpperCase()}`,
+        description: `${qty} unidade(s) transferidas de ${fromAddress.toUpperCase()} para ${toAddress.toUpperCase()}, lote ${lote.toUpperCase()}`,
       });
       
       setCode('');
       setFromAddress('');
       setToAddress('');
+      setLote('');
       setQuantity('');
     } catch (error) {
       toast({
@@ -92,6 +95,16 @@ export const ProductTransfer = ({ onTransfer }: ProductTransferProps) => {
                 placeholder="Ex: PROD001"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="transfer-lote">Lote</Label>
+              <Input
+                id="transfer-lote"
+                placeholder="Ex: L001"
+                value={lote}
+                onChange={(e) => setLote(e.target.value)}
               />
             </div>
             

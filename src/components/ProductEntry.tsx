@@ -7,7 +7,7 @@ import { PackagePlus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface ProductEntryProps {
-  onAdd: (code: string, description: string, quantity: number, address: string) => void;
+  onAdd: (code: string, description: string, quantity: number, address: string, lote: string) => void;
 }
 
 export const ProductEntry = ({ onAdd }: ProductEntryProps) => {
@@ -15,11 +15,12 @@ export const ProductEntry = ({ onAdd }: ProductEntryProps) => {
   const [description, setDescription] = useState('');
   const [quantity, setQuantity] = useState('');
   const [address, setAddress] = useState('');
+  const [lote, setLote] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!code.trim() || !description.trim() || !address.trim()) {
+    if (!code.trim() || !description.trim() || !address.trim() || !lote.trim()) {
       toast({
         title: 'Erro',
         description: 'Preencha todos os campos',
@@ -38,17 +39,18 @@ export const ProductEntry = ({ onAdd }: ProductEntryProps) => {
       return;
     }
     
-    onAdd(code.trim().toUpperCase(), description.trim(), qty, address.trim().toUpperCase());
+    onAdd(code.trim().toUpperCase(), description.trim(), qty, address.trim().toUpperCase(), lote.trim().toUpperCase());
     
     toast({
       title: 'Sucesso!',
-      description: `${qty} unidade(s) de ${description} adicionadas ao endereço ${address.toUpperCase()}`,
+      description: `${qty} unidade(s) de ${description} adicionadas ao endereço ${address.toUpperCase()}, lote ${lote.toUpperCase()}`,
     });
     
     setCode('');
     setDescription('');
     setQuantity('');
     setAddress('');
+    setLote('');
   };
 
   return (
@@ -102,6 +104,16 @@ export const ProductEntry = ({ onAdd }: ProductEntryProps) => {
                 placeholder="Ex: A01"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="entry-lote">Lote</Label>
+              <Input
+                id="entry-lote"
+                placeholder="Ex: L001"
+                value={lote}
+                onChange={(e) => setLote(e.target.value)}
               />
             </div>
           </div>
