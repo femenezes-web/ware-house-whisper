@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRightLeft } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { ProductSearchInput } from './ProductSearchInput';
+import { ProductDataSelect } from './ProductDataSelect';
 
 interface StockItem {
   code: string;
@@ -31,7 +32,24 @@ export const ProductTransfer = ({ onTransfer, stock }: ProductTransferProps) => 
   const handleProductSelect = (selectedCode: string, selectedDescription: string) => {
     setCode(selectedCode);
     setProductSearch(`${selectedCode} - ${selectedDescription}`);
+    // Reset fields when product changes
+    setLote('');
+    setFromAddress('');
+    setToAddress('');
   };
+
+  // Get available lotes and addresses for selected product
+  const availableLotes = code 
+    ? Array.from(new Set(stock.filter(item => item.code === code).map(item => item.lote)))
+    : [];
+  
+  const availableFromAddresses = code && lote
+    ? Array.from(new Set(stock.filter(item => item.code === code && item.lote === lote).map(item => item.address)))
+    : [];
+  
+  const availableToAddresses = code
+    ? Array.from(new Set(stock.filter(item => item.code === code).map(item => item.address)))
+    : [];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,11 +134,14 @@ export const ProductTransfer = ({ onTransfer, stock }: ProductTransferProps) => 
             
             <div className="space-y-2">
               <Label htmlFor="transfer-lote">Lote</Label>
-              <Input
-                id="transfer-lote"
-                placeholder="Ex: L001"
+              <ProductDataSelect
                 value={lote}
-                onChange={(e) => setLote(e.target.value)}
+                onSelect={(value) => {
+                  setLote(value);
+                  setFromAddress(''); // Reset from address when lote changes
+                }}
+                options={availableLotes}
+                placeholder="Selecione ou digite um lote"
               />
             </div>
             
@@ -138,21 +159,21 @@ export const ProductTransfer = ({ onTransfer, stock }: ProductTransferProps) => 
             
             <div className="space-y-2">
               <Label htmlFor="transfer-from">Endereço de Origem</Label>
-              <Input
-                id="transfer-from"
-                placeholder="Ex: A01"
+              <ProductDataSelect
                 value={fromAddress}
-                onChange={(e) => setFromAddress(e.target.value)}
+                onSelect={setFromAddress}
+                options={availableFromAddresses}
+                placeholder="Selecione ou digite o endereço de origem"
               />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="transfer-to">Endereço de Destino</Label>
-              <Input
-                id="transfer-to"
-                placeholder="Ex: B02"
+              <ProductDataSelect
                 value={toAddress}
-                onChange={(e) => setToAddress(e.target.value)}
+                onSelect={setToAddress}
+                options={availableToAddresses}
+                placeholder="Selecione ou digite o endereço de destino"
               />
             </div>
           </div>

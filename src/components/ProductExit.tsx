@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { PackageMinus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { ProductSearchInput } from './ProductSearchInput';
+import { ProductDataSelect } from './ProductDataSelect';
 
 interface StockItem {
   code: string;
@@ -30,7 +31,19 @@ export const ProductExit = ({ onRemove, stock }: ProductExitProps) => {
   const handleProductSelect = (selectedCode: string, selectedDescription: string) => {
     setCode(selectedCode);
     setProductSearch(`${selectedCode} - ${selectedDescription}`);
+    // Reset lote and address when product changes
+    setAddress('');
+    setLote('');
   };
+
+  // Get available lotes and addresses for selected product
+  const availableLotes = code 
+    ? Array.from(new Set(stock.filter(item => item.code === code).map(item => item.lote)))
+    : [];
+  
+  const availableAddresses = code
+    ? Array.from(new Set(stock.filter(item => item.code === code).map(item => item.address)))
+    : [];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,21 +112,21 @@ export const ProductExit = ({ onRemove, stock }: ProductExitProps) => {
             
             <div className="space-y-2">
               <Label htmlFor="exit-address">Endereço</Label>
-              <Input
-                id="exit-address"
-                placeholder="Ex: A01"
+              <ProductDataSelect
                 value={address}
-                onChange={(e) => setAddress(e.target.value)}
+                onSelect={setAddress}
+                options={availableAddresses}
+                placeholder="Selecione ou digite um endereço"
               />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="exit-lote">Lote</Label>
-              <Input
-                id="exit-lote"
-                placeholder="Ex: L001"
+              <ProductDataSelect
                 value={lote}
-                onChange={(e) => setLote(e.target.value)}
+                onSelect={setLote}
+                options={availableLotes}
+                placeholder="Selecione ou digite um lote"
               />
             </div>
             
