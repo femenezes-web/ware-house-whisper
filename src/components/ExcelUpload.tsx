@@ -26,19 +26,27 @@ export const ExcelUpload = ({ onImport }: ExcelUploadProps) => {
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
         const products = jsonData.map((row: any) => {
-          const code = row['Código'] || row['Codigo'] || row['codigo'] || row['CÓDIGO'];
-          const description = row['Descrição'] || row['Descricao'] || row['descricao'] || row['DESCRIÇÃO'];
+          const productField = row['Produto'] || row['produto'] || row['PRODUTO'];
           const quantity = row['Quantidade'] || row['quantidade'] || row['QUANTIDADE'];
           const address = row['Endereço'] || row['Endereco'] || row['endereco'] || row['ENDEREÇO'];
           const lote = row['Lote'] || row['lote'] || row['LOTE'];
 
-          if (!code || !description || !quantity || !address || !lote) {
-            throw new Error('Planilha inválida: faltam colunas obrigatórias (Código, Descrição, Quantidade, Endereço, Lote)');
+          if (!productField || !quantity || !address || !lote) {
+            throw new Error('Planilha inválida: faltam colunas obrigatórias (Produto, Quantidade, Endereço, Lote)');
+          }
+
+          // Separar código e descrição do campo Produto (formato: "CODIGO - DESCRIÇÃO")
+          const parts = String(productField).split(' - ');
+          const code = parts[0]?.trim() || '';
+          const description = parts.slice(1).join(' - ').trim() || parts[0]?.trim() || '';
+
+          if (!code) {
+            throw new Error('Planilha inválida: campo Produto deve conter o código');
           }
 
           return {
-            code: String(code),
-            description: String(description),
+            code,
+            description,
             quantity: Number(quantity),
             address: String(address),
             lote: String(lote)
@@ -67,7 +75,7 @@ export const ExcelUpload = ({ onImport }: ExcelUploadProps) => {
           Importar Planilha Excel
         </CardTitle>
         <CardDescription>
-          Envie uma planilha .xlsx ou .csv com as colunas: Código, Descrição, Quantidade, Endereço, Lote
+          Envie uma planilha .xlsx ou .csv com as colunas: Produto (código - descrição), Quantidade, Endereço, Lote
         </CardDescription>
       </CardHeader>
       <CardContent>
