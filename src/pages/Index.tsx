@@ -51,12 +51,12 @@ const Index = () => {
 
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <ProductEntry onAdd={addProduct} />
-          <ProductExit onRemove={removeProduct} />
+          <ProductEntry onAdd={addProduct} stock={stock} />
+          <ProductExit onRemove={removeProduct} stock={stock} />
         </div>
 
         <div className="mb-8">
-          <ProductTransfer onTransfer={transferProduct} />
+          <ProductTransfer onTransfer={transferProduct} stock={stock} />
         </div>
 
         <div className="mb-8">

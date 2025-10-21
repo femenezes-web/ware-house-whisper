@@ -5,17 +5,33 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { ArrowRightLeft } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { ProductSearchInput } from './ProductSearchInput';
+
+interface StockItem {
+  code: string;
+  description: string;
+  quantity: number;
+  address: string;
+  lote: string;
+}
 
 interface ProductTransferProps {
   onTransfer: (code: string, fromAddress: string, toAddress: string, lote: string, quantity: number) => void;
+  stock: StockItem[];
 }
 
-export const ProductTransfer = ({ onTransfer }: ProductTransferProps) => {
+export const ProductTransfer = ({ onTransfer, stock }: ProductTransferProps) => {
   const [code, setCode] = useState('');
+  const [productSearch, setProductSearch] = useState('');
   const [fromAddress, setFromAddress] = useState('');
   const [toAddress, setToAddress] = useState('');
   const [lote, setLote] = useState('');
   const [quantity, setQuantity] = useState('');
+
+  const handleProductSelect = (selectedCode: string, selectedDescription: string) => {
+    setCode(selectedCode);
+    setProductSearch(`${selectedCode} - ${selectedDescription}`);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,13 +104,13 @@ export const ProductTransfer = ({ onTransfer }: ProductTransferProps) => {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="transfer-code">Código do Produto</Label>
-              <Input
-                id="transfer-code"
-                placeholder="Ex: PROD001"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="transfer-product">Produto (Código - Descrição)</Label>
+              <ProductSearchInput
+                value={productSearch}
+                onSelect={handleProductSelect}
+                products={stock}
+                placeholder="Buscar produto..."
               />
             </div>
             
