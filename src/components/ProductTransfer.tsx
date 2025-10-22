@@ -47,8 +47,9 @@ export const ProductTransfer = ({ onTransfer, stock }: ProductTransferProps) => 
     ? Array.from(new Set(stock.filter(item => item.code === code && item.lote === lote).map(item => item.address)))
     : [];
   
+  // All addresses for destination (allow new addresses)
   const availableToAddresses = code
-    ? Array.from(new Set(stock.filter(item => item.code === code).map(item => item.address)))
+    ? Array.from(new Set(stock.map(item => item.address)))
     : [];
 
   const handleSubmit = (e: React.FormEvent) => {

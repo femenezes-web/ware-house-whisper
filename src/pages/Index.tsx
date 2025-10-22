@@ -12,7 +12,7 @@ import { useEffect } from 'react';
 
 const Index = () => {
   const navigate = useNavigate();
-  const { stock, addProduct, removeProduct, transferProduct, importFromExcel, exportToCSV } = useStock();
+  const { stock, addProduct, removeProduct, transferProduct, importFromExcel, exportToCSV, updateLote } = useStock();
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('wms_logged_in');
@@ -63,7 +63,7 @@ const Index = () => {
           <ExcelUpload onImport={importFromExcel} />
         </div>
 
-        <StockTable stock={stock} onExport={exportToCSV} />
+        <StockTable stock={stock} onExport={exportToCSV} onUpdateLote={updateLote} />
       </main>
 
       <footer className="border-t mt-12 py-6">

@@ -3,16 +3,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Download, Search, Package } from 'lucide-react';
+import { Download, Search, Package, Pencil, Check, X } from 'lucide-react';
 import { StockItem } from '@/hooks/useStock';
+import { toast } from '@/hooks/use-toast';
 
 interface StockTableProps {
   stock: StockItem[];
   onExport: () => void;
+  onUpdateLote: (oldItem: StockItem, newLote: string) => void;
 }
 
-export const StockTable = ({ stock, onExport }: StockTableProps) => {
+export const StockTable = ({ stock, onExport, onUpdateLote }: StockTableProps) => {
   const [search, setSearch] = useState('');
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editLoteValue, setEditLoteValue] = useState('');
 
   const filteredStock = useMemo(() => {
     const query = search.toLowerCase().trim();
@@ -29,6 +33,38 @@ export const StockTable = ({ stock, onExport }: StockTableProps) => {
   const totalItems = useMemo(() => {
     return stock.reduce((sum, item) => sum + item.quantity, 0);
   }, [stock]);
+
+  const handleEditLote = (index: number, currentLote: string) => {
+    setEditingIndex(index);
+    setEditLoteValue(currentLote);
+  };
+
+  const handleSaveLote = (item: StockItem, index: number) => {
+    if (!editLoteValue.trim()) {
+      toast({
+        title: 'Erro',
+        description: 'Lote não pode estar vazio',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (editLoteValue.trim().toUpperCase() !== item.lote) {
+      onUpdateLote(item, editLoteValue.trim().toUpperCase());
+      toast({
+        title: 'Sucesso',
+        description: 'Lote atualizado com sucesso',
+      });
+    }
+    
+    setEditingIndex(null);
+    setEditLoteValue('');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingIndex(null);
+    setEditLoteValue('');
+  };
 
   return (
     <Card className="col-span-full">
@@ -67,25 +103,26 @@ export const StockTable = ({ stock, onExport }: StockTableProps) => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="font-semibold">Código</TableHead>
-                <TableHead className="font-semibold">Descrição</TableHead>
+                <TableHead className="font-semibold">Produto (Código - Descrição)</TableHead>
                 <TableHead className="font-semibold text-right">Quantidade</TableHead>
                 <TableHead className="font-semibold">Endereço</TableHead>
                 <TableHead className="font-semibold">Lote</TableHead>
+                <TableHead className="font-semibold w-24">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredStock.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     {search ? 'Nenhum produto encontrado' : 'Estoque vazio. Adicione produtos para começar.'}
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredStock.map((item, index) => (
                   <TableRow key={`${item.code}-${item.address}-${item.lote}-${index}`}>
-                    <TableCell className="font-medium">{item.code}</TableCell>
-                    <TableCell>{item.description}</TableCell>
+                    <TableCell className="font-medium">
+                      {item.code} - {item.description}
+                    </TableCell>
                     <TableCell className="text-right">{item.quantity}</TableCell>
                     <TableCell>
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
@@ -93,9 +130,48 @@ export const StockTable = ({ stock, onExport }: StockTableProps) => {
                       </span>
                     </TableCell>
                     <TableCell>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent/10 text-accent">
-                        {item.lote}
-                      </span>
+                      {editingIndex === index ? (
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={editLoteValue}
+                            onChange={(e) => setEditLoteValue(e.target.value)}
+                            className="h-8 w-32"
+                            autoFocus
+                          />
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleSaveLote(item, index)}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Check className="h-4 w-4 text-green-600" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={handleCancelEdit}
+                            className="h-8 w-8 p-0"
+                          >
+                            <X className="h-4 w-4 text-red-600" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent/10 text-accent">
+                          {item.lote}
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {editingIndex !== index && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleEditLote(index, item.lote)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

@@ -117,6 +117,18 @@ export const useStock = () => {
     });
   };
 
+  const updateLote = (oldItem: StockItem, newLote: string) => {
+    setStock(prev => {
+      return prev.map(item =>
+        item.code === oldItem.code && 
+        item.address === oldItem.address && 
+        item.lote === oldItem.lote
+          ? { ...item, lote: newLote }
+          : item
+      );
+    });
+  };
+
   const exportToCSV = () => {
     const headers = ['Código', 'Descrição', 'Quantidade', 'Endereço', 'Lote'];
     const rows = stock.map(item => [
@@ -151,6 +163,7 @@ export const useStock = () => {
     removeProduct,
     transferProduct,
     importFromExcel,
-    exportToCSV
+    exportToCSV,
+    updateLote
   };
 };
