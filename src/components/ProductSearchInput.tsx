@@ -46,6 +46,18 @@ export const ProductSearchInput = ({
     new Map(products.map(p => [p.code, p])).values()
   );
 
+  // Improved search: filter products by any character in code or description
+  const filteredProducts = uniqueProducts.filter(product => {
+    const searchLower = searchValue.toLowerCase().trim();
+    if (!searchLower) return true; // Show all if search is empty
+    
+    const codeLower = product.code.toLowerCase();
+    const descriptionLower = product.description.toLowerCase();
+    const combined = `${codeLower} ${descriptionLower}`;
+    
+    return combined.includes(searchLower);
+  });
+
   const handleSelect = (product: Product) => {
     const displayValue = `${product.code} - ${product.description}`;
     setSearchValue(displayValue);
@@ -91,7 +103,7 @@ export const ProductSearchInput = ({
           <CommandList>
             <CommandEmpty>Nenhum produto encontrado. Digite para criar novo.</CommandEmpty>
             <CommandGroup>
-              {uniqueProducts.map((product) => (
+              {filteredProducts.map((product) => (
                 <CommandItem
                   key={product.code}
                   value={`${product.code} - ${product.description}`}

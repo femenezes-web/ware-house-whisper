@@ -5,14 +5,17 @@ import { ProductExit } from '@/components/ProductExit';
 import { ProductTransfer } from '@/components/ProductTransfer';
 import { StockTable } from '@/components/StockTable';
 import { ExcelUpload } from '@/components/ExcelUpload';
+import { HistoryTable } from '@/components/HistoryTable';
 import { Button } from '@/components/ui/button';
 import { useStock } from '@/hooks/useStock';
+import { useHistory } from '@/hooks/useHistory';
 import { toast } from 'sonner';
 import { useEffect } from 'react';
 
 const Index = () => {
   const navigate = useNavigate();
-  const { stock, addProduct, removeProduct, transferProduct, importFromExcel, exportToCSV, updateLote } = useStock();
+  const { history, addEntry, clearHistory } = useHistory();
+  const { stock, addProduct, removeProduct, transferProduct, importFromExcel, exportToCSV, updateLote } = useStock(addEntry);
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('wms_logged_in');
@@ -64,6 +67,10 @@ const Index = () => {
         </div>
 
         <StockTable stock={stock} onExport={exportToCSV} onUpdateLote={updateLote} />
+      
+        <div className="mt-8">
+          <HistoryTable history={history} onClearHistory={clearHistory} />
+        </div>
       </main>
 
       <footer className="border-t mt-12 py-6">

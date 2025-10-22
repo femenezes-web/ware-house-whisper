@@ -10,7 +10,19 @@ export interface StockItem {
 
 const STORAGE_KEY = 'wms_stock_data';
 
-export const useStock = () => {
+type HistoryCallback = (entry: {
+  type: 'ENTRADA' | 'SAÍDA' | 'TRANSFERÊNCIA' | 'EDIÇÃO_LOTE';
+  code: string;
+  description: string;
+  quantity: number;
+  fromAddress?: string;
+  toAddress?: string;
+  lote: string;
+  oldLote?: string;
+  details: string;
+}) => void;
+
+export const useStock = (onHistoryAdd?: HistoryCallback) => {
   const [stock, setStock] = useState<StockItem[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     return saved ? JSON.parse(saved) : [];
@@ -25,12 +37,32 @@ export const useStock = () => {
       const existing = prev.find(item => item.code === code && item.address === address && item.lote === lote);
       
       if (existing) {
+        onHistoryAdd?.({
+          type: 'ENTRADA',
+          code,
+          description,
+          quantity,
+          toAddress: address,
+          lote,
+          details: `Entrada de ${quantity} unidade(s) no endereço ${address}, lote ${lote} (quantidade anterior: ${existing.quantity})`
+        });
+        
         return prev.map(item =>
           item.code === code && item.address === address && item.lote === lote
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       }
+      
+      onHistoryAdd?.({
+        type: 'ENTRADA',
+        code,
+        description,
+        quantity,
+        toAddress: address,
+        lote,
+        details: `Entrada de ${quantity} unidade(s) no endereço ${address}, lote ${lote}`
+      });
       
       return [...prev, { code, description, quantity, address, lote }];
     });
@@ -47,6 +79,16 @@ export const useStock = () => {
       if (existing.quantity < quantity) {
         throw new Error('Quantidade insuficiente em estoque');
       }
+      
+      onHistoryAdd?.({
+        type: 'SAÍDA',
+        code,
+        description: existing.description,
+        quantity,
+        fromAddress: address,
+        lote,
+        details: `Saída de ${quantity} unidade(s) do endereço ${address}, lote ${lote} (quantidade restante: ${existing.quantity - quantity})`
+      });
       
       if (existing.quantity === quantity) {
         return prev.filter(item => !(item.code === code && item.address === address && item.lote === lote));
@@ -72,6 +114,17 @@ export const useStock = () => {
         if (source.quantity < quantity) {
           throw new Error('Quantidade insuficiente no endereço de origem');
         }
+        
+        onHistoryAdd?.({
+          type: 'TRANSFERÊNCIA',
+          code,
+          description: source.description,
+          quantity,
+          fromAddress,
+          toAddress,
+          lote,
+          details: `Transferência de ${quantity} unidade(s) do endereço ${fromAddress} para ${toAddress}, lote ${lote}`
+        });
         
         let newStock = [...prev];
         
@@ -118,6 +171,17 @@ export const useStock = () => {
   };
 
   const updateLote = (oldItem: StockItem, newLote: string) => {
+    onHistoryAdd?.({
+      type: 'EDIÇÃO_LOTE',
+      code: oldItem.code,
+      description: oldItem.description,
+      quantity: oldItem.quantity,
+      toAddress: oldItem.address,
+      lote: newLote,
+      oldLote: oldItem.lote,
+      details: `Alteração de lote de ${oldItem.lote} para ${newLote} no endereço ${oldItem.address}`
+    });
+    
     setStock(prev => {
       return prev.map(item =>
         item.code === oldItem.code && 
