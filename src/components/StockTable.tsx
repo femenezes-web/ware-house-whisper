@@ -3,32 +3,66 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Download, Search, Package, Pencil, Check, X } from 'lucide-react';
+import { Download, Search, Package, Pencil, Check, X, Trash2, ArrowUpDown } from 'lucide-react';
 import { StockItem } from '@/hooks/useStock';
 import { toast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Label } from '@/components/ui/label';
 
 interface StockTableProps {
   stock: StockItem[];
   onExport: () => void;
   onUpdateLote: (oldItem: StockItem, newLote: string) => void;
+  onClearStock: () => void;
 }
 
-export const StockTable = ({ stock, onExport, onUpdateLote }: StockTableProps) => {
+type SortField = 'quantity' | 'address' | null;
+type SortDirection = 'asc' | 'desc';
+
+export const StockTable = ({ stock, onExport, onUpdateLote, onClearStock }: StockTableProps) => {
   const [search, setSearch] = useState('');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editLoteValue, setEditLoteValue] = useState('');
+  const [sortField, setSortField] = useState<SortField>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [passwordInput, setPasswordInput] = useState('');
 
   const filteredStock = useMemo(() => {
     const query = search.toLowerCase().trim();
-    if (!query) return stock;
+    let result = query 
+      ? stock.filter(item =>
+          item.code.toLowerCase().includes(query) ||
+          item.description.toLowerCase().includes(query) ||
+          item.address.toLowerCase().includes(query) ||
+          item.lote.toLowerCase().includes(query)
+        )
+      : [...stock];
     
-    return stock.filter(item =>
-      item.code.toLowerCase().includes(query) ||
-      item.description.toLowerCase().includes(query) ||
-      item.address.toLowerCase().includes(query) ||
-      item.lote.toLowerCase().includes(query)
-    );
-  }, [stock, search]);
+    // Apply sorting
+    if (sortField) {
+      result.sort((a, b) => {
+        let comparison = 0;
+        if (sortField === 'quantity') {
+          comparison = a.quantity - b.quantity;
+        } else if (sortField === 'address') {
+          comparison = a.address.localeCompare(b.address);
+        }
+        return sortDirection === 'asc' ? comparison : -comparison;
+      });
+    }
+    
+    return result;
+  }, [stock, search, sortField, sortDirection]);
 
   const totalItems = useMemo(() => {
     return stock.reduce((sum, item) => sum + item.quantity, 0);
@@ -66,6 +100,33 @@ export const StockTable = ({ stock, onExport, onUpdateLote }: StockTableProps) =
     setEditLoteValue('');
   };
 
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const handleClearStockSubmit = () => {
+    if (passwordInput === 'elite') {
+      onClearStock();
+      setPasswordInput('');
+      toast({
+        title: 'Estoque limpo',
+        description: 'Todo o estoque foi removido com sucesso',
+      });
+    } else {
+      toast({
+        title: 'Erro',
+        description: 'Senha incorreta',
+        variant: 'destructive',
+      });
+      setPasswordInput('');
+    }
+  };
+
   return (
     <Card className="col-span-full">
       <CardHeader>
@@ -95,6 +156,40 @@ export const StockTable = ({ stock, onExport, onUpdateLote }: StockTableProps) =
               <Download className="mr-2 h-4 w-4" />
               Exportar CSV
             </Button>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" disabled={stock.length === 0}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Limpar Estoque
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Limpar Todo o Estoque</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta ação removerá permanentemente todos os itens do estoque. Digite a senha para confirmar.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <div className="space-y-2 py-4">
+                  <Label htmlFor="password">Senha</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Digite a senha"
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Usuário: elite | Senha: elite
+                  </p>
+                </div>
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={() => setPasswordInput('')}>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleClearStockSubmit}>Confirmar</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </CardHeader>
@@ -104,8 +199,28 @@ export const StockTable = ({ stock, onExport, onUpdateLote }: StockTableProps) =
             <TableHeader>
               <TableRow>
                 <TableHead className="font-semibold">Produto (Código - Descrição)</TableHead>
-                <TableHead className="font-semibold text-right">Quantidade</TableHead>
-                <TableHead className="font-semibold">Endereço</TableHead>
+                <TableHead className="font-semibold text-right">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSort('quantity')}
+                    className="h-8 -ml-3"
+                  >
+                    Quantidade
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </TableHead>
+                <TableHead className="font-semibold">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSort('address')}
+                    className="h-8 -ml-3"
+                  >
+                    Endereço
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </TableHead>
                 <TableHead className="font-semibold">Lote</TableHead>
                 <TableHead className="font-semibold w-24">Ações</TableHead>
               </TableRow>

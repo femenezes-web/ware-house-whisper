@@ -1,29 +1,16 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { History, Trash2 } from 'lucide-react';
+import { History } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { HistoryEntry } from '@/hooks/useHistory';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 
 interface HistoryTableProps {
   history: HistoryEntry[];
-  onClearHistory: () => void;
 }
 
-export const HistoryTable = ({ history, onClearHistory }: HistoryTableProps) => {
+export const HistoryTable = ({ history }: HistoryTableProps) => {
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'ENTRADA':
@@ -42,37 +29,11 @@ export const HistoryTable = ({ history, onClearHistory }: HistoryTableProps) => 
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <History className="h-5 w-5 text-primary" />
-              <CardTitle>Histórico de Movimentações</CardTitle>
-            </div>
-            <CardDescription>Registro de todas as operações realizadas</CardDescription>
-          </div>
-          {history.length > 0 && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Limpar Histórico
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Tem certeza que deseja limpar todo o histórico? Esta ação não pode ser desfeita.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={onClearHistory}>Confirmar</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          )}
+        <div className="flex items-center gap-2">
+          <History className="h-5 w-5 text-primary" />
+          <CardTitle>Histórico de Movimentações</CardTitle>
         </div>
+        <CardDescription>Registro permanente de todas as operações realizadas</CardDescription>
       </CardHeader>
       <CardContent>
         {history.length === 0 ? (

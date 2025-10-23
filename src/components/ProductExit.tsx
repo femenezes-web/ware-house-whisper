@@ -3,11 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { PackageMinus, Info } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { PackageMinus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { ProductSearchInput } from './ProductSearchInput';
 import { ProductDataSelect } from './ProductDataSelect';
+import { LoteQuantityInfo } from './LoteQuantityInfo';
 
 interface StockItem {
   code: string;
@@ -46,12 +46,6 @@ export const ProductExit = ({ onRemove, stock }: ProductExitProps) => {
     ? Array.from(new Set(stock.filter(item => item.code === code).map(item => item.address)))
     : [];
 
-  // Calculate available quantity based on selected product, address and lote
-  const availableQuantity = code && address && lote
-    ? stock.find(item => item.code === code && item.address === address && item.lote === lote)?.quantity || 0
-    : code
-    ? stock.filter(item => item.code === code).reduce((sum, item) => sum + item.quantity, 0)
-    : 0;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,6 +78,7 @@ export const ProductExit = ({ onRemove, stock }: ProductExitProps) => {
       });
       
       setCode('');
+      setProductSearch('');
       setAddress('');
       setLote('');
       setQuantity('');
@@ -107,15 +102,12 @@ export const ProductExit = ({ onRemove, stock }: ProductExitProps) => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {code && (
-            <div className="bg-muted/50 border rounded-lg p-3 flex items-center gap-2">
-              <Info className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">Quantidade disponível:</span>
-              <Badge variant="secondary" className="ml-auto">
-                {availableQuantity} unidade(s)
-              </Badge>
-            </div>
-          )}
+          <LoteQuantityInfo 
+            code={code} 
+            stock={stock} 
+            selectedLote={lote} 
+            selectedAddress={address}
+          />
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2 md:col-span-2">

@@ -46,16 +46,16 @@ export const ProductSearchInput = ({
     new Map(products.map(p => [p.code, p])).values()
   );
 
-  // Improved search: filter products by any character in code or description
+  // Improved search: filter products by matching characters in code or description
   const filteredProducts = uniqueProducts.filter(product => {
     const searchLower = searchValue.toLowerCase().trim();
     if (!searchLower) return true; // Show all if search is empty
     
     const codeLower = product.code.toLowerCase();
     const descriptionLower = product.description.toLowerCase();
-    const combined = `${codeLower} ${descriptionLower}`;
     
-    return combined.includes(searchLower);
+    // Check if code or description contains the search term
+    return codeLower.includes(searchLower) || descriptionLower.includes(searchLower);
   });
 
   const handleSelect = (product: Product) => {
@@ -67,15 +67,7 @@ export const ProductSearchInput = ({
 
   const handleInputChange = (newValue: string) => {
     setSearchValue(newValue);
-    
-    // If user clears or modifies, parse the input
-    if (newValue.includes(' - ')) {
-      const [code, description] = newValue.split(' - ');
-      onSelect(code.trim(), description.trim());
-    } else {
-      // User is typing a new product
-      onSelect(newValue, newValue);
-    }
+    setOpen(true); // Keep dropdown open while typing
   };
 
   return (

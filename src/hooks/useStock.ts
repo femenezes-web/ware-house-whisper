@@ -221,6 +221,10 @@ export const useStock = (onHistoryAdd?: HistoryCallback) => {
     document.body.removeChild(link);
   };
 
+  const clearStock = () => {
+    setStock([]);
+  };
+
   return {
     stock,
     addProduct,
@@ -228,6 +232,7 @@ export const useStock = (onHistoryAdd?: HistoryCallback) => {
     transferProduct,
     importFromExcel,
     exportToCSV,
-    updateLote
+    updateLote,
+    clearStock
   };
 };

@@ -14,8 +14,8 @@ import { useEffect } from 'react';
 
 const Index = () => {
   const navigate = useNavigate();
-  const { history, addEntry, clearHistory } = useHistory();
-  const { stock, addProduct, removeProduct, transferProduct, importFromExcel, exportToCSV, updateLote } = useStock(addEntry);
+  const { history, addEntry } = useHistory();
+  const { stock, addProduct, removeProduct, transferProduct, importFromExcel, exportToCSV, updateLote, clearStock } = useStock(addEntry);
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('wms_logged_in');
@@ -66,10 +66,10 @@ const Index = () => {
           <ExcelUpload onImport={importFromExcel} />
         </div>
 
-        <StockTable stock={stock} onExport={exportToCSV} onUpdateLote={updateLote} />
+        <StockTable stock={stock} onExport={exportToCSV} onUpdateLote={updateLote} onClearStock={clearStock} />
       
         <div className="mt-8">
-          <HistoryTable history={history} onClearHistory={clearHistory} />
+          <HistoryTable history={history} />
         </div>
       </main>
 
