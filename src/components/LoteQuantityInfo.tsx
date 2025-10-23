@@ -34,6 +34,15 @@ export const LoteQuantityInfo = ({ code, stock, selectedLote, selectedAddress }:
     return acc;
   }, {} as Record<string, number>);
 
+  // Group by address
+  const addressGroups = productItems.reduce((acc, item) => {
+    if (!acc[item.address]) {
+      acc[item.address] = 0;
+    }
+    acc[item.address] += item.quantity;
+    return acc;
+  }, {} as Record<string, number>);
+
   // Get specific quantity if lote and address are selected
   const specificQuantity = selectedLote && selectedAddress
     ? stock.find(item => item.code === code && item.lote === selectedLote && item.address === selectedAddress)?.quantity || 0
@@ -46,35 +55,60 @@ export const LoteQuantityInfo = ({ code, stock, selectedLote, selectedAddress }:
         <span className="text-sm font-medium">Quantidades Disponíveis:</span>
       </div>
       
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Total geral:</span>
-          <Badge variant="secondary" className="font-semibold">
-            {totalQuantity} unidade(s)
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Lotes Section */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between pb-2 border-b">
+            <span className="text-sm font-semibold text-muted-foreground">Por Lote</span>
+            <Badge variant="secondary" className="font-semibold">
+              {totalQuantity} unidades
+            </Badge>
+          </div>
+          
+          {Object.entries(loteGroups).map(([lote, quantity]) => (
+            <div key={lote} className="flex items-center justify-between pl-3 border-l-2 border-muted">
+              <span className="text-sm text-muted-foreground">Lote {lote}:</span>
+              <Badge 
+                variant={selectedLote === lote ? "default" : "outline"}
+                className="text-xs"
+              >
+                {quantity} un.
+              </Badge>
+            </div>
+          ))}
+        </div>
+
+        {/* Addresses Section */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between pb-2 border-b">
+            <span className="text-sm font-semibold text-muted-foreground">Por Endereço</span>
+            <Badge variant="secondary" className="font-semibold">
+              {totalQuantity} unidades
+            </Badge>
+          </div>
+          
+          {Object.entries(addressGroups).map(([address, quantity]) => (
+            <div key={address} className="flex items-center justify-between pl-3 border-l-2 border-muted">
+              <span className="text-sm text-muted-foreground">{address}:</span>
+              <Badge 
+                variant={selectedAddress === address ? "default" : "outline"}
+                className="text-xs"
+              >
+                {quantity} un.
+              </Badge>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {specificQuantity !== null && (
+        <div className="flex items-center justify-between pl-4 border-l-2 border-primary mt-3 pt-3 border-t">
+          <span className="text-sm font-medium">Neste endereço e lote:</span>
+          <Badge variant="default" className="font-semibold">
+            {specificQuantity} unidade(s)
           </Badge>
         </div>
-        
-        {Object.entries(loteGroups).map(([lote, quantity]) => (
-          <div key={lote} className="flex items-center justify-between pl-4 border-l-2 border-muted">
-            <span className="text-sm text-muted-foreground">Lote {lote}:</span>
-            <Badge 
-              variant={selectedLote === lote ? "default" : "outline"}
-              className="text-xs"
-            >
-              {quantity} unidade(s)
-            </Badge>
-          </div>
-        ))}
-
-        {specificQuantity !== null && (
-          <div className="flex items-center justify-between pl-4 border-l-2 border-primary mt-3 pt-2">
-            <span className="text-sm font-medium">Neste endereço:</span>
-            <Badge variant="default" className="font-semibold">
-              {specificQuantity} unidade(s)
-            </Badge>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 };
