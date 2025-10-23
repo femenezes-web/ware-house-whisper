@@ -38,6 +38,22 @@ export const ProductEntry = ({ onAdd, stock }: ProductEntryProps) => {
     setAddress('');
   };
 
+  // Handle manual input - parse code and description from the search field
+  const handleSearchChange = (value: string) => {
+    setProductSearch(value);
+    
+    // Try to parse "CODE - DESCRIPTION" format
+    const parts = value.split('-').map(p => p.trim());
+    if (parts.length >= 2) {
+      setCode(parts[0]);
+      setDescription(parts.slice(1).join(' - '));
+    } else if (value.trim()) {
+      // If no dash, treat entire value as code
+      setCode(value.trim());
+      setDescription(value.trim());
+    }
+  };
+
   // Get available lotes and addresses for selected product
   const availableLotes = code 
     ? Array.from(new Set(stock.filter(item => item.code === code).map(item => item.lote)))
@@ -50,10 +66,29 @@ export const ProductEntry = ({ onAdd, stock }: ProductEntryProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!code.trim() || !description.trim() || !address.trim() || !lote.trim()) {
+    // Specific validation for each field
+    if (!code.trim()) {
       toast({
         title: 'Erro',
-        description: 'Preencha todos os campos',
+        description: 'O campo "Produto (Código)" deve estar preenchido',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    if (!description.trim()) {
+      toast({
+        title: 'Erro',
+        description: 'O campo "Produto (Descrição)" deve estar preenchido',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    if (!quantity.trim()) {
+      toast({
+        title: 'Erro',
+        description: 'O campo "Quantidade" deve estar preenchido',
         variant: 'destructive',
       });
       return;
@@ -63,7 +98,25 @@ export const ProductEntry = ({ onAdd, stock }: ProductEntryProps) => {
     if (isNaN(qty) || qty <= 0) {
       toast({
         title: 'Erro',
-        description: 'Quantidade deve ser maior que zero',
+        description: 'O campo "Quantidade" deve ser maior que zero',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    if (!address.trim()) {
+      toast({
+        title: 'Erro',
+        description: 'O campo "Endereço" deve estar preenchido',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    if (!lote.trim()) {
+      toast({
+        title: 'Erro',
+        description: 'O campo "Lote" deve estar preenchido',
         variant: 'destructive',
       });
       return;
@@ -98,12 +151,22 @@ export const ProductEntry = ({ onAdd, stock }: ProductEntryProps) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="entry-product">Produto (Código - Descrição)</Label>
-              <ProductSearchInput
+              <Input
+                id="entry-product"
+                type="text"
+                placeholder="Digite o código ou nome do produto..."
                 value={productSearch}
-                onSelect={handleProductSelect}
-                products={stock}
-                placeholder="Buscar ou digitar novo produto..."
+                onChange={(e) => handleSearchChange(e.target.value)}
+                list="products-datalist"
               />
+              <datalist id="products-datalist">
+                {Array.from(new Map(stock.map(p => [p.code, p])).values()).map((product) => (
+                  <option 
+                    key={product.code} 
+                    value={`${product.code} - ${product.description}`}
+                  />
+                ))}
+              </datalist>
             </div>
             
             <div className="space-y-2">
