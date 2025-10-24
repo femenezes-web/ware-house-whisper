@@ -70,7 +70,7 @@ export const LoteQuantityInfo = ({ code, stock, selectedLote, selectedAddress }:
       )}
       
       <div className="space-y-2">
-        <h4 className="text-sm font-semibold text-muted-foreground">Por Lote e Endereço:</h4>
+        <h4 className="text-sm font-semibold text-muted-foreground">Por Endereço e Lote:</h4>
         <div className="space-y-1.5 max-h-48 overflow-y-auto">
           {Object.values(loteAddressGroups).map((group, index) => (
             <div key={index} className="flex items-center justify-between p-2 bg-muted/50 rounded text-sm">
