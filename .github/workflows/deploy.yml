@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: read # Mantenha 'read'
+  pages: write   # ESSENCIAL
+  id-token: write # ESSENCIAL
 
 jobs:
   build:
@@ -24,9 +24,17 @@ jobs:
         run: npm ci # 'ci' é preferível a 'install' em pipelines de build
 
       - name: Build Project
-        run: npm run build # Garanta que seu 'package.json' tem o script 'build'
+  run: npm run build # Garanta que este script existe e funciona localmente.
       
   # O restante do seu workflow de deploy (ex: peaceiris/actions-gh-pages)
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
       - name: Deploy to GitHub Pages
-        # 💡 Você substitui por este código se estiver usando o método Actions/Pages
+        id: deployment
         uses: actions/deploy-pages@v4
