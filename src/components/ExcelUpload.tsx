@@ -24,7 +24,7 @@ export const ExcelUpload = ({ onImport }: ExcelUploadProps) => {
         'Produto': 'INS-12345 - PRODUTO EXEMPLO 2',
         'Quantidade': 5,
         'Endereço': 'B2-02-03',
-        'Lote': 'LOTE456'
+        'Lote': ''
       }
     ];
 
@@ -54,10 +54,18 @@ export const ExcelUpload = ({ onImport }: ExcelUploadProps) => {
             const productField = row['Produto'] || row['produto'] || row['PRODUTO'];
             const quantity = row['Quantidade'] || row['quantidade'] || row['QUANTIDADE'];
             const address = row['Endereço'] || row['Endereco'] || row['endereco'] || row['ENDEREÇO'] || row['ENDERECO'];
-            const lote = row['Lote'] || row['lote'] || row['LOTE'];
+            const lote = row['Lote'] || row['lote'] || row['LOTE'] || '';
 
-            if (!productField || !quantity || !address || !lote) {
-              throw new Error(`Linha ${rowIndex + 2}: Faltam dados obrigatórios. Certifique-se de que todas as colunas estão preenchidas: Produto, Quantidade, Endereço, Lote`);
+            if (!productField) {
+              throw new Error(`Linha ${rowIndex + 2}: O campo "Produto" deve estar preenchido`);
+            }
+            
+            if (!quantity) {
+              throw new Error(`Linha ${rowIndex + 2}: O campo "Quantidade" deve estar preenchido`);
+            }
+            
+            if (!address) {
+              throw new Error(`Linha ${rowIndex + 2}: O campo "Endereço" deve estar preenchido`);
             }
 
             // Separar código e descrição do campo Produto (formato: "CODIGO - DESCRIÇÃO")
@@ -79,7 +87,7 @@ export const ExcelUpload = ({ onImport }: ExcelUploadProps) => {
               description,
               quantity: qty,
               address: String(address).toUpperCase(),
-              lote: String(lote).toUpperCase()
+              lote: lote ? String(lote).toUpperCase() : 'SEM LOTE'
             };
           });
 
@@ -105,7 +113,7 @@ export const ExcelUpload = ({ onImport }: ExcelUploadProps) => {
           Importar Planilha Excel
         </CardTitle>
         <CardDescription>
-          Envie uma planilha .xlsx ou .csv com as colunas: Produto (código - descrição), Quantidade, Endereço, Lote
+          Envie uma planilha .xlsx ou .csv com as colunas: Produto (código - descrição), Quantidade, Endereço, Lote (opcional)
         </CardDescription>
       </CardHeader>
       <CardContent>

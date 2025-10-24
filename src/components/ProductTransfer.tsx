@@ -57,10 +57,40 @@ export const ProductTransfer = ({ onTransfer, stock }: ProductTransferProps) => 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!code.trim() || !fromAddress.trim() || !toAddress.trim() || !lote.trim()) {
+    if (!code.trim()) {
       toast({
         title: 'Erro',
-        description: 'Preencha todos os campos',
+        description: 'O campo "Produto" deve estar preenchido',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    if (!fromAddress.trim()) {
+      toast({
+        title: 'Erro',
+        description: 'O campo "Endereço de Origem" deve estar preenchido',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    if (!toAddress.trim()) {
+      toast({
+        title: 'Erro',
+        description: 'O campo "Endereço de Destino" deve estar preenchido',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    // Check if product has lote in stock
+    const productHasLote = stock.some(item => item.code === code.trim().toUpperCase() && item.lote !== 'SEM LOTE');
+    
+    if (productHasLote && !lote.trim()) {
+      toast({
+        title: 'Erro',
+        description: 'O campo "Lote" deve estar preenchido para este produto',
         variant: 'destructive',
       });
       return;
@@ -86,17 +116,18 @@ export const ProductTransfer = ({ onTransfer, stock }: ProductTransferProps) => 
     }
     
     try {
+      const finalLote = lote.trim() || 'SEM LOTE';
       onTransfer(
         code.trim().toUpperCase(),
         fromAddress.trim().toUpperCase(),
         toAddress.trim().toUpperCase(),
-        lote.trim().toUpperCase(),
+        finalLote.toUpperCase(),
         qty
       );
       
       toast({
         title: 'Sucesso!',
-        description: `${qty} unidade(s) transferidas de ${fromAddress.toUpperCase()} para ${toAddress.toUpperCase()}, lote ${lote.toUpperCase()}`,
+        description: `${qty} unidade(s) transferidas de ${fromAddress.toUpperCase()} para ${toAddress.toUpperCase()}, lote ${finalLote.toUpperCase()}`,
       });
       
       setCode('');

@@ -36,6 +36,7 @@ export const StockTable = ({ stock, onExport, onUpdateLote, onClearStock }: Stoc
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [passwordInput, setPasswordInput] = useState('');
+  const [showAll, setShowAll] = useState(false);
 
   const filteredStock = useMemo(() => {
     const query = search.toLowerCase().trim();
@@ -63,6 +64,8 @@ export const StockTable = ({ stock, onExport, onUpdateLote, onClearStock }: Stoc
     
     return result;
   }, [stock, search, sortField, sortDirection]);
+
+  const displayedStock = showAll ? filteredStock : filteredStock.slice(0, 10);
 
   const totalItems = useMemo(() => {
     return stock.reduce((sum, item) => sum + item.quantity, 0);
@@ -226,19 +229,19 @@ export const StockTable = ({ stock, onExport, onUpdateLote, onClearStock }: Stoc
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredStock.length === 0 ? (
+              {displayedStock.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     {search ? 'Nenhum produto encontrado' : 'Estoque vazio. Adicione produtos para começar.'}
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredStock.map((item, index) => (
+                displayedStock.map((item, index) => (
                   <TableRow key={`${item.code}-${item.address}-${item.lote}-${index}`}>
                     <TableCell className="font-medium">
                       {item.code} - {item.description}
                     </TableCell>
-                    <TableCell className="text-right">{item.quantity}</TableCell>
+                    <TableCell className="text-right">{parseFloat(item.quantity.toFixed(4))}</TableCell>
                     <TableCell>
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
                         {item.address}
@@ -294,6 +297,16 @@ export const StockTable = ({ stock, onExport, onUpdateLote, onClearStock }: Stoc
             </TableBody>
           </Table>
         </div>
+        {filteredStock.length > 10 && (
+          <div className="flex justify-center pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowAll(!showAll)}
+            >
+              {showAll ? 'Mostrar menos' : `Ver todos os ${filteredStock.length} itens`}
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

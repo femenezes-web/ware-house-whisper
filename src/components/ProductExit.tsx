@@ -50,10 +50,31 @@ export const ProductExit = ({ onRemove, stock }: ProductExitProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!code.trim() || !address.trim() || !lote.trim()) {
+    if (!code.trim()) {
       toast({
         title: 'Erro',
-        description: 'Preencha código, endereço e lote',
+        description: 'O campo "Produto" deve estar preenchido',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    if (!address.trim()) {
+      toast({
+        title: 'Erro',
+        description: 'O campo "Endereço" deve estar preenchido',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    // Check if product has lote in stock
+    const productHasLote = stock.some(item => item.code === code.trim().toUpperCase() && item.lote !== 'SEM LOTE');
+    
+    if (productHasLote && !lote.trim()) {
+      toast({
+        title: 'Erro',
+        description: 'O campo "Lote" deve estar preenchido para este produto',
         variant: 'destructive',
       });
       return;
@@ -70,11 +91,12 @@ export const ProductExit = ({ onRemove, stock }: ProductExitProps) => {
     }
     
     try {
-      onRemove(code.trim().toUpperCase(), address.trim().toUpperCase(), lote.trim().toUpperCase(), qty);
+      const finalLote = lote.trim() || 'SEM LOTE';
+      onRemove(code.trim().toUpperCase(), address.trim().toUpperCase(), finalLote.toUpperCase(), qty);
       
       toast({
         title: 'Sucesso!',
-        description: `${qty} unidade(s) removidas do endereço ${address.toUpperCase()}, lote ${lote.toUpperCase()}`,
+        description: `${qty} unidade(s) removidas do endereço ${address.toUpperCase()}, lote ${finalLote.toUpperCase()}`,
       });
       
       setCode('');

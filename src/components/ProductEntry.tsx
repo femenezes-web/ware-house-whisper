@@ -113,20 +113,14 @@ export const ProductEntry = ({ onAdd, stock }: ProductEntryProps) => {
       return;
     }
     
-    if (!lote.trim()) {
-      toast({
-        title: 'Erro',
-        description: 'O campo "Lote" deve estar preenchido',
-        variant: 'destructive',
-      });
-      return;
-    }
+    // Lote is optional - use "Sem Lote" if not provided
+    const finalLote = lote.trim() || 'SEM LOTE';
     
-    onAdd(code.trim().toUpperCase(), description.trim(), qty, address.trim().toUpperCase(), lote.trim().toUpperCase());
+    onAdd(code.trim().toUpperCase(), description.trim(), qty, address.trim().toUpperCase(), finalLote.toUpperCase());
     
     toast({
       title: 'Sucesso!',
-      description: `${qty} unidade(s) de ${description} adicionadas ao endereço ${address.toUpperCase()}, lote ${lote.toUpperCase()}`,
+      description: `${qty} unidade(s) de ${description} adicionadas ao endereço ${address.toUpperCase()}, lote ${finalLote.toUpperCase()}`,
     });
     
     setCode('');
