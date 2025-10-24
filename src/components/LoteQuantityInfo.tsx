@@ -75,8 +75,8 @@ export const LoteQuantityInfo = ({ code, stock, selectedLote, selectedAddress }:
           {Object.values(loteAddressGroups).map((group, index) => (
             <div key={index} className="flex items-center justify-between p-2 bg-muted/50 rounded text-sm">
               <div className="flex flex-col gap-0.5">
-                <span className="font-medium">{group.lote}</span>
-                <span className="text-xs text-muted-foreground">{group.address}</span>
+                <span className="font-medium">{group.address}</span>
+                <span className="text-xs text-muted-foreground">{group.lote}</span>
               </div>
               <Badge variant="outline">{parseFloat(group.quantity.toFixed(4))}</Badge>
             </div>
