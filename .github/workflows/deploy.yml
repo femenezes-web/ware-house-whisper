@@ -14,28 +14,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          
-      - name: Install dependencies
-        run: npm install
-        
-      - name: Build
-        run: npm run build
-        
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-        
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './dist'
-          
+          node-version: '20' # Use uma versão LTS estável
+      
+      # 💡 Adicione as etapas de instalação e build
+      - name: Install Dependencies
+        run: npm ci # 'ci' é preferível a 'install' em pipelines de build
+
+      - name: Build Project
+        run: npm run build # Garanta que seu 'package.json' tem o script 'build'
+      
+  # O restante do seu workflow de deploy (ex: peaceiris/actions-gh-pages)
       - name: Deploy to GitHub Pages
-        id: deployment
+        # 💡 Você substitui por este código se estiver usando o método Actions/Pages
         uses: actions/deploy-pages@v4
