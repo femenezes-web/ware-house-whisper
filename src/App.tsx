@@ -14,8 +14,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      {/* 💡 CORREÇÃO: Adicionar basename com o nome do repositório */}
-      <BrowserRouter basename="/ware-house-whisper">
+      <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Index />} />
