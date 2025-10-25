@@ -3,5 +3,8 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/ware-house-whisper/', // deve ser igual ao nome do repositório
+  base: '/ware-house-whisper/',
+  server: {
+    port: 8080
+  }
 })
